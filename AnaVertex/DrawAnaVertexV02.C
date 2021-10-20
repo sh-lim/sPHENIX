@@ -10,7 +10,8 @@ void DrawAnaVertexV02(int grp=40){
 	//TFile *infile = new TFile("AnaSvtxVertex.root","read");
 	//TFile *infile = new TFile("outfile_AnaVertex_20_00.root","read");
 	//TFile *infile = new TFile("outfile_AnaVertexV03_grp20_1.root","read");
-	TFile *infile = new TFile("outfile_AnaVertexV03_grp20_2.root","read");
+	//TFile *infile = new TFile("outfile_AnaVertexV03_grp20_2.root","read");
+	TFile *infile = new TFile("outfile_AnaVertexV03_grp22_2.root","read");
 
 	string tag = "PYTHIA8 HardQCD:all";
 	if ( grp==41 ){
@@ -155,6 +156,38 @@ void DrawAnaVertexV02(int grp=40){
 			h1d_DL_mvtx_f[ii]->SetBinError(ibin+1, 0);
 		}
 	}
+
+	TH2D *h2d_eta_pt_p_gen_pi = (TH2D*)infile->Get("h2d_eta_pt_p_gen_pi");
+	TH2D *h2d_eta_pt_s_gen_pi = (TH2D*)infile->Get("h2d_eta_pt_s_gen_pi");
+
+	TH2D *h2d_eta_pt_p_reco_pi = (TH2D*)infile->Get("h2d_eta_pt_p_reco_pi");
+	TH2D *h2d_eta_pt_s_reco_pi = (TH2D*)infile->Get("h2d_eta_pt_s_reco_pi");
+
+	int etabin_min = h2d_eta_pt_p_gen_pi->ProjectionX()->FindBin(-1.0+0.01);
+	int etabin_max = h2d_eta_pt_p_gen_pi->ProjectionX()->FindBin(+1.0-0.01);
+
+	TH1D *h1d_pt_p_gen_pi = (TH1D*)h2d_eta_pt_p_gen_pi->ProjectionY("h1d_pt_p_gen_pi",etabin_min,etabin_max);
+	TH1D *h1d_pt_s_gen_pi = (TH1D*)h2d_eta_pt_s_gen_pi->ProjectionY("h1d_pt_s_gen_pi",etabin_min,etabin_max);
+
+	TH1D *h1d_pt_p_reco_pi = (TH1D*)h2d_eta_pt_p_reco_pi->ProjectionY("h1d_pt_p_reco_pi",etabin_min,etabin_max);
+	TH1D *h1d_pt_s_reco_pi = (TH1D*)h2d_eta_pt_s_reco_pi->ProjectionY("h1d_pt_s_reco_pi",etabin_min,etabin_max);
+
+	h1d_pt_s_gen_pi->Rebin();
+	h1d_pt_p_gen_pi->Rebin();
+	h1d_pt_s_reco_pi->Rebin();
+	h1d_pt_p_reco_pi->Rebin();
+
+	h1d_pt_p_reco_pi->Sumw2();
+	h1d_pt_p_reco_pi->SetMarkerStyle(24);
+	h1d_pt_p_reco_pi->SetMarkerColor(1);
+	h1d_pt_p_reco_pi->SetLineColor(1);
+	h1d_pt_p_reco_pi->Divide(h1d_pt_p_gen_pi);
+
+	h1d_pt_s_reco_pi->Sumw2();
+	h1d_pt_s_reco_pi->SetMarkerStyle(25);
+	h1d_pt_s_reco_pi->SetMarkerColor(4);
+	h1d_pt_s_reco_pi->SetLineColor(4);
+	h1d_pt_s_reco_pi->Divide(h1d_pt_s_gen_pi);
 
 	TCanvas *c0 = new TCanvas("c0","c0",1.1*3*400,400);
 	c0->Divide(3,1);
@@ -364,6 +397,29 @@ void DrawAnaVertexV02(int grp=40){
 		leg->AddEntry(h1d_DL_mvtx[2],"2 MVTX cluster","L");
 		leg->AddEntry(h1d_DL_mvtx[3],"3 MVTX cluster","L");
 		leg->Draw();
+	}
+
+	TCanvas *c4 = new TCanvas("c4","c4",1.1*500,500);
+	{
+
+		SetPadStyle();
+
+		htmp = (TH1D*)gPad->DrawFrame(0,0,10,1.2);
+		SetHistoStyle("p_{T} [GeV/c]","Reconstruction efficiency");
+
+		h1d_pt_p_reco_pi->Draw("p same");
+		h1d_pt_s_reco_pi->Draw("p same");
+
+		TLegend *leg = new TLegend(0.25,0.2,0.7,0.4);
+		leg->SetFillStyle(0);
+		leg->SetBorderSize(0);
+		leg->SetTextSize(0.045);
+		leg->AddEntry("","PYTHIA8 pp 200 GeV","h");
+		leg->AddEntry("","Charged pion, |#eta|<1","h");
+		leg->AddEntry(h1d_pt_p_reco_pi,"Prompt","P");
+		leg->AddEntry(h1d_pt_s_reco_pi,"Non-prompt","P");
+		leg->Draw();
+
 	}
 
 	return;
