@@ -221,6 +221,9 @@ void MyAnaDstBasic::fill_tree(PHCompositeNode *topNode)
 			if ( !g4particle ) continue;
 			if ( trutheval->is_primary(g4particle)==0 ) continue;
 
+			short pid = abs(g4particle->get_pid());
+			if ( !(pid==211 || pid==321 || pid==2212) ) continue;
+
 			PHG4VtxPoint* vtx = trutheval->get_vertex(g4particle);
 			if ( !vtx ) continue;
 
