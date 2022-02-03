@@ -20,6 +20,7 @@ libMyAnaDst_la_LDFLAGS = \
 libMyAnaDst_la_LIBADD = \
   -lfun4all \
   -lg4dst \
+  -lg4eval \
 	-lphhepmc
 
 if ! MAKEROOT6

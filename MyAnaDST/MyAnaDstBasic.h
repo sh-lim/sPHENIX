@@ -8,6 +8,9 @@
 class PHCompositeNode;
 class SvtxVertexMap;
 class SvtxTrackMap;
+class PHG4TruthInfoContainer;
+class SvtxEvalStack;
+class PHHepMCGenEventMap;
 class TFile;
 class TTree;
 
@@ -59,11 +62,18 @@ class MyAnaDstBasic: public SubsysReco
 	float track_pt[1000];
 	float track_eta[1000];
 
-	float vtx_reco[10][3];
+	float truth_pt[1000];
+	float truth_eta[1000];
+
+	float vtx_reco[100][3];
+	float vtx_gen[100][3];
 
   //Node pointers
 	SvtxVertexMap *_vtxmap;
 	SvtxTrackMap *_trkmap;
+	PHG4TruthInfoContainer *_truth_container;
+	SvtxEvalStack *_svtxevalstack;
+	PHHepMCGenEventMap *_hepmc_event_map;
 
 };
 
