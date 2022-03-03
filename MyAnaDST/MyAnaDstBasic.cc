@@ -89,6 +89,8 @@ int MyAnaDstBasic::Init(PHCompositeNode *topNode)
 	_events->Branch("ntrack",0,"ntrack/I");
 	_events->Branch("track_pt",0,"track_pt[ntrack]/F");
 	_events->Branch("track_eta",0,"track_eta[ntrack]/F");
+	_events->Branch("track_dca3d_xy",0,"track_dca3d_xy[ntrack]/F");
+	_events->Branch("track_dca3d_z",0,"track_dca3d_z[ntrack]/F");
 
 	_events->Branch("ntruth",0,"ntruth/I");
 	_events->Branch("truth_pt",0,"truth_pt[ntruth]/F");
@@ -151,6 +153,7 @@ void MyAnaDstBasic::fill_tree(PHCompositeNode *topNode)
   reset_variables();
 
 	SvtxTruthEval *trutheval = _svtxevalstack->get_truth_eval();
+	SvtxTrackEval *trackeval = _svtxevalstack->get_track_eval();
 
 	int ntrack = 0;
 	int ntruth = 0;
@@ -179,8 +182,20 @@ void MyAnaDstBasic::fill_tree(PHCompositeNode *topNode)
 		for (SvtxTrackMap::ConstIter iter=_trkmap->begin(); iter!=_trkmap->end(); ++iter){
 			SvtxTrack *svtx_trk = iter->second;
 
+			//truth matching
+			PHG4Particle* g4particle = trackeval->max_truth_particle_by_nclusters(svtx_trk);
+			if ( !g4particle ) continue;
+
+			if ( trutheval->is_primary(g4particle)==0 ) continue;
+
+			short pid = abs(g4particle->get_pid());
+			if ( !(pid==211 || pid==321 || pid==2212) ) continue;
+			//
+
 			track_pt[ntrack] = svtx_trk->get_pt();
 			track_eta[ntrack] = svtx_trk->get_eta();
+			track_dca3d_xy[ntrack] = svtx_trk->get_dca3d_xy();
+			track_dca3d_z[ntrack] = svtx_trk->get_dca3d_z();
 
 			ntrack++;
 
@@ -263,6 +278,8 @@ void MyAnaDstBasic::fill_tree(PHCompositeNode *topNode)
 	((TBranch*) _events->GetListOfBranches()->At(count++))->SetAddress(&ntrack);
 	((TBranch*) _events->GetListOfBranches()->At(count++))->SetAddress(track_pt);
 	((TBranch*) _events->GetListOfBranches()->At(count++))->SetAddress(track_eta);
+	((TBranch*) _events->GetListOfBranches()->At(count++))->SetAddress(track_dca3d_xy);
+	((TBranch*) _events->GetListOfBranches()->At(count++))->SetAddress(track_dca3d_z);
 
 	((TBranch*) _events->GetListOfBranches()->At(count++))->SetAddress(&ntruth);
 	((TBranch*) _events->GetListOfBranches()->At(count++))->SetAddress(truth_pt);

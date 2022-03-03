@@ -61,6 +61,8 @@ class MyAnaDstBasic: public SubsysReco
 	//SvtxTrack
 	float track_pt[1000];
 	float track_eta[1000];
+	float track_dca3d_xy[1000];
+	float track_dca3d_z[1000];
 
 	float truth_pt[1000];
 	float truth_eta[1000];
